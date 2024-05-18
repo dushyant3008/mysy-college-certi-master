@@ -61,7 +61,7 @@ const GenerateDoc = () => {
           const year = date.getFullYear();
           
           // Send email with the PDF
-          sendEmail("fresh");
+          sendEmail("fresh" , eno);
         
           // Create a data URL for the PDF
           const pdfData = `data:application/pdf;base64,${base64Content}`;

@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export default async function sendEmail(type) {
+export default async function sendEmail(type , eno) {
   const directoryPath = `./server/files/${type}`;
 
   fs.readdir(directoryPath, (err, files) => {
@@ -35,8 +35,8 @@ export default async function sendEmail(type) {
       transporter.sendMail({
         from: "mysy@vpmp.ac.in",
         to: "mysy@vpmp.ac.in",
-        subject: {eno},
-        text: `MYSY College `,
+        subject: eno,
+        text: `MYSY College Certificate 2024`,
         attachments: [
           {
             filename: latestPdfFile,
