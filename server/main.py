@@ -1,7 +1,7 @@
 from flask import Flask, request, send_file
 from docx import Document
 from docx.shared import Pt
-from flask_cors import CORS
+from flask_cors import CORS , cross_origin
 from docx2pdf import convert
 import pythoncom
 import threading
@@ -10,7 +10,7 @@ import datetime
 from concurrent_log_handler import ConcurrentRotatingFileHandler
 
 app = Flask(__name__)
-CORS(app)
+CORS(app ,origins='*')
 
 log_handler = ConcurrentRotatingFileHandler('app.log', maxBytes=10000, backupCount=3)
 log_handler.setLevel(logging.INFO)
@@ -94,6 +94,7 @@ def generate_and_convert(data, number_str):
     return f'files/re/{number_str}.pdf'
 
 @app.route('/test', methods=['POST'])
+@cross_origin()
 def handle_request():
     data = request.get_json()
     with open("./counter_re.txt", "r") as f:
@@ -109,6 +110,7 @@ def down():
 def index():
     return "Hello, World!"
 @app.route('/generate-doc', methods=['POST'])
+@cross_origin()
 def generate_word_doc():
     pythoncom.CoInitialize() 
     with open("./counter.txt", "r") as f:

@@ -22,7 +22,7 @@ const GenerateDoc = () => {
   ];
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+    
     const data = {
       name,
       eno,
@@ -41,6 +41,7 @@ const GenerateDoc = () => {
     ) {
       data.name = name.toLocaleUpperCase()
       if(validate(data)){
+        setDownUrl("loading")
         const response = await fetch("http://160.160.19.13:5000/generate-doc", {
           method: "POST",
           headers: {
@@ -155,7 +156,7 @@ const GenerateDoc = () => {
           className="bg-indigo-700 text-white rounded-xl p-3 m-3"
         />
          {
-          downUrl === "" ? "":  <a href={`${downUrl}`}  className="bg-green-300 p-3 rounded-xl">Download</a>
+          downUrl === "" ? "": downUrl !== "loading" ? <a href={`${downUrl}`}  className="bg-green-800 p-3 rounded-xl">Download</a> : "Loading"
         }
       </form>
       <div className="bg-indigo-700 text-white flex flex-col p-5 rounded-xl">

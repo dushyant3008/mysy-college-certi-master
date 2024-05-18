@@ -83,8 +83,10 @@ const GenerateDoc2 = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (confirm(`> Are you sure you want to generate the document?`)) {
+      
       data.name = name.toLocaleUpperCase()
       if(validate(data)){
+        setDownUrl("loading")
         const response = await fetch("http://160.160.19.13:5000/test", {
           method: "POST",
           headers: {
@@ -130,6 +132,8 @@ const GenerateDoc2 = () => {
         } else {
           console.error("Failed to process the PDF file");
         }
+      } else {
+        alert("Please fill all fields")
       }
     }
   };
@@ -315,8 +319,8 @@ const GenerateDoc2 = () => {
           value="Submit"
           className="bg-indigo-700 text-white rounded-xl p-3 m-3"
         />
-        {
-          downUrl === "" ? "":  <a href={`${downUrl}`}  className="bg-green-300 p-3 rounded-xl">Download</a>
+         {
+          downUrl === "" ? "": downUrl !== "loading" ? <a href={`${downUrl}`}  className="bg-green-800 p-3 rounded-xl">Download</a> : "Loading"
         }
         
       </form>
