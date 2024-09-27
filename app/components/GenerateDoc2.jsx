@@ -204,6 +204,7 @@ const GenerateDoc2 = () => {
           <option value="28,000/-">28,000/-</option>
           <option value="37,000/-">37,000/-</option>
           <option value="40,000/-">40,000/-</option>
+          <option value="0/-">0/-</option>
         </select>
         under MYSY during year {preAcadYear}
         {/* <input
@@ -313,6 +314,15 @@ const GenerateDoc2 = () => {
           <option value="first">first attempt</option>
           <option value="second">second attempt</option>
         </select>{" "}
+        {/* with
+        <select 
+          type="text"
+          defaultValue="pass" 
+          onChange={(e) => setPassedSem2(e.target.value)}>
+            <option value="pass">pass</option>
+            <option value="fail">fail</option>
+          </select>{""}
+          result. */}
         <br />
         <input
           type="submit"

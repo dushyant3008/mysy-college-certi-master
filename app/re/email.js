@@ -34,7 +34,7 @@ export default async function sendEmail(type , eno) {
 
       transporter.sendMail({
         from: "mysy@vpmp.ac.in",
-        to: "mysy@vpmp.ac.in",
+        to: "adminoffice@vpmp.ac.in",
         subject: eno,
         text: `MYSY College Certificate 2024`,
         attachments: [

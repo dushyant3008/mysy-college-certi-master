@@ -44,7 +44,7 @@ const GenerateDoc = () => {
         setDownUrl("loading")
         const response = await fetch("http://160.160.19.13:5000/generate-doc", {
           method: "POST",
-          headers: {
+            headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(data),

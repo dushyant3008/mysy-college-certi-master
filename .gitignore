@@ -2,10 +2,26 @@
 
 # dependencies
 /node_modules
+node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
-
+server/__pycache__/
+/server/
+__pycache__/
+myenv/
+/server/myenv/
+/myenv/
+/server/myenv/
+./server/myenv/
+server/myenv/
+/server/files/fresh/
+/server/files/re/
+server/files/
+/server/files/
+files
+./server/files/
+./myenv/
 # testing
 /coverage
 
