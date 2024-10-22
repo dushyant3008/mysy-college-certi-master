@@ -33,6 +33,7 @@ const GenerateDoc2 = () => {
   const [cpi, setCpi] = useState("");
   const [data, setData] = useState({});
   const [downUrl , setDownUrl] = useState("")
+  const [xoxx , setXoxx] = useState("pass")
   useEffect(() => {
     const tempYear = inSemester === "3" ? "first" : "second";
     const sem1 = inSemester === "3" ? "first" : "third";
@@ -60,6 +61,7 @@ const GenerateDoc2 = () => {
       attempts_2: atm2,
       percentile_1: percentValue,
       in_semester: inSemester,
+      xoxx: xoxx
     });
   }, [
     name,
@@ -78,6 +80,7 @@ const GenerateDoc2 = () => {
     atm1,
     spi2,
     atm2,
+    xoxx
   ]);
 
   const handleSubmit = async (e) => {
@@ -130,7 +133,9 @@ const GenerateDoc2 = () => {
         
           console.log("PDF file processed successfully!");
         } else {
-          console.error("Failed to process the PDF file");
+          alert("Error Occured. This could be due to the fact that you are trying to create a duplicate document. Your response was previously submitted and thus you need not submit it again...")
+          console.error("Failed to generate Word document");
+          setDownUrl('')
         }
       } else {
         alert("Please fill all fields")
@@ -313,6 +318,14 @@ const GenerateDoc2 = () => {
         >
           <option value="first">first attempt</option>
           <option value="second">second attempt</option>
+        </select>{" "}
+        <select
+          type="text"
+          defaultValue="pass"
+          onChange={(e) => setXoxx(e.target.value)}
+        >
+          <option value="pass">Pass</option>
+          <option value="fail">Fail</option>
         </select>{" "}
         {/* with
         <select 

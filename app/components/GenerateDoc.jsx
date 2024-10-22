@@ -42,6 +42,11 @@ const GenerateDoc = () => {
       data.name = name.toLocaleUpperCase()
       if(validate(data)){
         setDownUrl("loading")
+        console.log(data.eno)
+        if(!data.eno.startsWith("24")){
+          alert("Fresh registration form can only be filled by those in first year.")
+          return 
+        }
         const response = await fetch("http://160.160.19.13:5000/generate-doc", {
           method: "POST",
             headers: {
@@ -75,7 +80,9 @@ const GenerateDoc = () => {
           // link.parentNode.removeChild(link);
           // console.log("Word document generated successfully!");
         } else {
+          alert("Error Occured. This could be due to the fact that you are trying to create a duplicate document. Your response was previously submitted and thus you need not submit it again...")
           console.error("Failed to generate Word document");
+          setDownUrl('')
         }
       } else {
         alert("Fill all fields")

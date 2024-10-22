@@ -1,3 +1,4 @@
+import sys
 from flask import Flask, request, send_file
 from docx import Document
 from docx.shared import Pt
@@ -19,10 +20,21 @@ log_handler.setLevel(logging.INFO)
 app.logger.addHandler(log_handler)
 app.logger.setLevel(logging.INFO)
 
-lock = threading.Lock()  # Initialize threading lock for file operations
+lock = threading.Lock() 
+
+def check_and_save_enrollment_number(eno, file_path):
+    with lock:
+        if os.path.exists(file_path):
+            with open(file_path, "r") as f:
+                existing_numbers = f.read().splitlines()
+                if eno in existing_numbers:
+                    return False  # Duplicate found
+        with open(file_path, "a") as f:
+            f.write(eno + "\n")  
+    return True  
 
 def generate_and_convert(data, number_str):
-    pythoncom.CoInitialize()  # Initialize COM for Windows
+    pythoncom.CoInitialize()  
     
     document = Document("input_r.docx")
     
@@ -50,6 +62,7 @@ def generate_and_convert(data, number_str):
     attempts_2 = data["attempts_2"]
     result_pass = ["PASS"]
     result_fail = ["FAIL"]
+    xoxx = data['xoxx']
     today = datetime.date.today()
     placeholders = {
         "SERI": f"VPMP/MYSY/1084/R{number_str}/{serial_year}",
@@ -75,14 +88,14 @@ def generate_and_convert(data, number_str):
         "ATM_S": attempts_2,
         "PASS": result_pass[0],
         "FAIL": result_fail[0],
-        "CURRD": today.strftime("%d/%m/%Y")
+        "CURRD": today.strftime("%d/%m/%Y"),
+        "XOXX": xoxx
     }
 
     for para in document.paragraphs:
         for run in para.runs:
             for key, value in placeholders.items():
                 if key.strip() in run.text.strip() or key in run.text:
-                    print(key , value)
                     run.text = run.text.replace(key, value)
                     run.bold = True
 
@@ -95,7 +108,7 @@ def generate_and_convert(data, number_str):
     file_name_docx = f'files/re/{number_str}.docx'
     file_name_pdf = f'files/re/{number_str}.pdf'
 
-    with lock:  # Acquire lock before file operations
+    with lock:  
         document.save(file_name_docx)
         convert(file_name_docx, file_name_pdf)
 
@@ -112,6 +125,12 @@ def handle_request():
     with open("./counter_re.txt", "r") as f:
         number_str = int(f.read().strip())
 
+    eno = data["enrollment_number"]
+    enrollments_file = "enrollments_re.txt"
+    
+    if not check_and_save_enrollment_number(eno, enrollments_file):
+        return "Duplicate enrollment number error", 400
+
     try:
         file_path = generate_and_convert(data, number_str)
         return send_file(file_path, as_attachment=False, download_name=f"document_{number_str}.pdf", mimetype='application/pdf')
@@ -119,45 +138,41 @@ def handle_request():
         app.logger.error(f"Error generating PDF: {e}")
         return "Error generating PDF", 500
 
-@app.route("/down", methods=['GET'])
-def down():
-    return send_file("files/re/2.pdf", as_attachment=True)
-
-@app.route("/", methods=['GET'])
-def index():
-    return "Hello, World!"
-
 @app.route('/generate-doc', methods=['POST'])
 def generate_word_doc():
-    number_str = 0  # Default value in case of errors
+    data = request.get_json()
+    number_str = 0  
+
     try:
         with open("./counter.txt", "r") as f:
             content = f.read().strip()
-            print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> {content}")
-            if content.isdigit():  # Check if content is a valid integer
+            if content.isdigit():  
                 number_str = int(content)
     except Exception as e:
         app.logger.error(f"Error reading/parsing counter.txt: {e}")
 
     try:
-        # Increment the counter in counter.txt
         with open("counter.txt", "w") as f:
             f.write(str(number_str + 1))
     except Exception as e:
         app.logger.error(f"Error writing to counter.txt: {e}")
 
     pythoncom.CoInitialize()
-    data = request.get_json()
-    name = data['name']
+
     eno = data['eno']
+    enrollments_file = "enrollments_fresh.txt"
+
+    if not check_and_save_enrollment_number(eno, enrollments_file):
+        return "Duplicate enrollment number error", 400
+
+    document = Document("input.docx")
+    name = data['name']
     year = data['year']
     branch = data['branch']
     method = data['method']
     fee = data['fee']
     is_admitted = data['is_admitted']
     gender = data['gender']
-
-    document = Document("input.docx")
     mis = "Mr." if gender == "male" else "Ms."
     heshe = "He" if gender == "male" else "She"
     today = datetime.date.today()
@@ -173,13 +188,12 @@ def generate_word_doc():
         "AMOUNTOFFEE": str(fee),
         "ADMIT": is_admitted,
         "CURRD": f"{today.strftime('%d/%m/%Y')}"
-        
     }
+
     for para in document.paragraphs:
         for run in para.runs:
             for key, value in placeholders.items():
                 if key.strip() in run.text.strip() or key in run.text:
-                    print(key , value)
                     run.text = run.text.replace(key, value)
                     run.bold = True
 
@@ -188,6 +202,7 @@ def generate_word_doc():
             font = run.font
             font.name = 'Times New Roman'
             font.size = Pt(14)
+
     try:
         document.save(f'./files/fresh/{number_str}.docx')
         convert(f'./files/fresh/{number_str}.docx', f'./files/fresh/{number_str}.pdf')
@@ -200,8 +215,7 @@ def generate_word_doc():
         return send_file(f'./files/fresh/{number_str}.pdf', as_attachment=True)
     except Exception as e:
         app.logger.error(f"Error sending file: {e}")
-        return str(e), 500  # Return error message and HTTP status 500
-
+        return str(e), 500  
 
 @app.route("/shutdown", methods=['GET'])
 def shutdown():
@@ -210,10 +224,6 @@ def shutdown():
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
     return 'Server shutting down...'
-
-@app.route("/", methods=["GET"])
-def hello():
-    return f"Hello World {port}"
 
 if __name__ == '__main__':
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 5000

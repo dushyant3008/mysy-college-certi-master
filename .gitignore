@@ -24,7 +24,7 @@ files
 ./myenv/
 # testing
 /coverage
-
+server/files/fresh
 # next.js
 /.next/
 /out/

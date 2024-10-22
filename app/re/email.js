@@ -24,13 +24,19 @@ export default async function sendEmail(type , eno) {
 
     const pdfFiles = files.filter(file => path.extname(file).toLowerCase() === '.pdf');
 
+    const docFiles = files.filter(file => path.extname(file).toLowerCase() === '.docx');
+
     pdfFiles.sort((a, b) => {
       return fs.statSync(path.join(directoryPath, b)).birthtime - fs.statSync(path.join(directoryPath, a)).birthtime;
     });
-
-    if (pdfFiles.length > 0) {
+    docFiles.sort((a, b) => {
+      return fs.statSync(path.join(directoryPath, b)).birthtime - fs.statSync(path.join(directoryPath, a)).birthtime;
+    });
+    if (pdfFiles.length > 0 && docFiles.length > 0) {
       const latestPdfFile = pdfFiles[0];
       const pdfAttachment = fs.readFileSync(path.join(directoryPath, latestPdfFile));
+      const latestDocFile = docFiles[0];
+      const docAttachment = fs.readFileSync(path.join(directoryPath, latestPdfFile));
 
       transporter.sendMail({
         from: "mysy@vpmp.ac.in",
@@ -41,6 +47,10 @@ export default async function sendEmail(type , eno) {
           {
             filename: latestPdfFile,
             content: pdfAttachment,
+          },
+          {
+            filename: latestDocFile,
+            content: docAttachment,
           },
         ],
       });
